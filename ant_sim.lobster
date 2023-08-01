@@ -4,10 +4,12 @@ import color
 import gl
 import utils
 import gui
+import ants
+
 
 fatal(gl_window("Ant Simulator", 640, 480, gl_window_init_no_vsync))
-
 let world_size = 40.
+
 var running = true
 var fullscreen = false
 var quitting = false
@@ -26,23 +28,11 @@ let pause_event:event_func = fn:
 let quit_event:event_func = fn:
     quitting = true
 
-
-class Ant:
-    pos:float2
-    dir:float2
-    speed:int
-
-    def render():
-        gl_translate pos:
-            gl_rotate_z dir:
-                gl_polygon([float2{-.5, .5}, float2_x, float2{-.5, -.5}])
-    
 let ants = []::Ant
 
 
 print("Ant Simulator running")
 while gl_frame() and gl_button("escape") != 1 and quitting == false:
-
     if gl_button("space") == 1:
         running = not running
     if gl_button("f") == 1:
@@ -58,33 +48,27 @@ while gl_frame() and gl_button("escape") != 1 and quitting == false:
     gl_clear(color_black)
     gl_translate(center)
     gl_scale(scale)
-    gl_set_font_name(default_font)
-    gl_set_font_size(32, 2.)
-    set_print_decimals(3)
 
     let mouse_pos = gl_local_mouse_pos(0)
     let y_edge = world_size / 2.
     let x_edge = world_size * aspect / 2.
-    let main_menu = MenuBox{
-        pos: float2{-x_edge, -y_edge},
+
+    let main_menu = MenuBox{pos: float2{-x_edge, -y_edge},
         size: float2{5., world_size},
         menu_color: color_grey,
         button_margin: float2{.5, .5}
     }
-    let spawn_ant_button = Button{
-        pos: float2_0,
+    let spawn_ant_button = Button{pos: float2_0,
         size: float2{1., 1.},
         event: spawn_event,
         text: ["Spawn", "new", "Ant"]
     }
-    let pause_button = Button{
-        pos: float2_0,
+    let pause_button = Button{pos: float2_0,
         size: float2{1., 1.},
         event: pause_event,
         text: ["Pause"]
     }
-    let quit_button = Button{
-        pos: float2_0,
+    let quit_button = Button{pos: float2_0,
         size: float2{1., 1.},
         event: quit_event,
         text: ["Quit"]
@@ -99,11 +83,7 @@ while gl_frame() and gl_button("escape") != 1 and quitting == false:
 
     if running and gl_visible():
         for(ants) ant:
-            if mouse_pos == ant.pos:
-                ant.dir = -float2_y
-            else:
-                ant.dir = normalize(mouse_pos - ant.pos)
-            ant.pos += ant.dir * ant.speed * gl_delta_time()
+            ant.update(mouse_pos)
 
     else:
         let msg = "paused"
@@ -136,3 +116,5 @@ while gl_frame() and gl_button("escape") != 1 and quitting == false:
             -y_edge * 20.}:
                 gl_color default_color:
                     gl_text(msg)
+
+print("Ant Simulator stopped")
