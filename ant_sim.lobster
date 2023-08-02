@@ -30,6 +30,19 @@ let quit_event:event_func = fn:
 
 let ants = []::Ant
 
+def setup():
+    let center = float(gl_window_size()) / 2.
+    let scale = gl_window_size().y / world_size
+    let aspect = float(gl_window_size().x) / float(gl_window_size().y)
+
+    gl_clear(color_black)
+    gl_translate(center)
+    gl_scale(scale)
+    
+    let mouse_pos = gl_local_mouse_pos(0)
+    let y_edge = world_size / 2.
+    let x_edge = world_size * aspect / 2.
+    return center, scale, aspect, mouse_pos, y_edge, x_edge
 
 print("Ant Simulator running")
 while gl_frame() and gl_button("escape") != 1 and quitting == false:
@@ -42,16 +55,7 @@ while gl_frame() and gl_button("escape") != 1 and quitting == false:
             gl_window_min_max(1)
         fullscreen = not fullscreen
 
-    let center = float(gl_window_size()) / 2.
-    let scale = gl_window_size().y / world_size
-    let aspect = float(gl_window_size().x) / float(gl_window_size().y)
-    gl_clear(color_black)
-    gl_translate(center)
-    gl_scale(scale)
-
-    let mouse_pos = gl_local_mouse_pos(0)
-    let y_edge = world_size / 2.
-    let x_edge = world_size * aspect / 2.
+    let center, scale, aspect, mouse_pos, y_edge, x_edge = setup()
 
     let main_menu = MenuBox{pos: float2{-x_edge, -y_edge},
         size: float2{5., world_size},
